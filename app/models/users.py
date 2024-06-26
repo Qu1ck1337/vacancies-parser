@@ -42,7 +42,7 @@ vacancies_table = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("user_id", sqlalchemy.ForeignKey("users.id")),
-    sqlalchemy.Column("date", sqlalchemy.DateTime()),
+    sqlalchemy.Column("created_at", sqlalchemy.DateTime()),
     sqlalchemy.Column("position", sqlalchemy.String()),
     sqlalchemy.Column("skills", sqlalchemy.String()),
     sqlalchemy.Column("work_format", sqlalchemy.String()),
