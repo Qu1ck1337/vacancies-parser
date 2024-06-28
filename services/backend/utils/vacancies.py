@@ -1,12 +1,10 @@
 import datetime
-import json
 
 import requests
 
-from app.schemas import users
-from app.models.database import database
-from app.models.users import vacancies_table
-from app.schemas import vacancies
+from services.backend.models.database import database
+from services.backend.models.users import vacancies_table
+from services.backend.schemas import vacancies, users
 
 
 async def search_vacancies_count(options: vacancies.SearchVacanciesOptions,

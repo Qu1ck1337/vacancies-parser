@@ -1,11 +1,11 @@
 from typing import List
 
-from app.schemas import users, vacancies
-from app.schemas.vacancies import VacanciesBase, VacanciesHistory
-from app.utils.dependencies import get_current_user
+from services.backend.schemas import vacancies, users
+from services.backend.schemas.vacancies import VacanciesBase, VacanciesHistory
+from services.backend.utils.dependencies import get_current_user
 from fastapi import APIRouter, Depends
 
-from app.utils import vacancies as vacancies_utils
+from services.backend.utils import vacancies as vacancies_utils
 
 router = APIRouter()
 

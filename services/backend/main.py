@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
-from app.models.database import database
-from app.routers import users, vacancies
+from services.backend.models.database import database
+from services.backend.routers import users, vacancies
 from fastapi import FastAPI
 
 
