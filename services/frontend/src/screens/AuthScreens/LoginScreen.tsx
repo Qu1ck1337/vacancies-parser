@@ -1,13 +1,49 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button, Card, CardBody, CardHeader, Flex, Heading, Input,
-    Spacer, Text, Link, Box, Alert, AlertIcon, AlertTitle, AlertDescription,
+    Spacer, Text, Link, Alert, AlertIcon, AlertTitle,
 } from "@chakra-ui/react";
+import axios from "axios";
+import { useNavigate  } from 'react-router-dom';
 
 const LoginScreen = () => {
     const [login, setLogin] = useState('')
     const [password, setPassword] = useState('')
     const [loginError, setLoginError] = useState(false)
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const token = sessionStorage.getItem('token');
+
+        if (token) {
+            navigate('/dashboard');
+        }
+    }, [navigate]);
+
+    const OnLogin = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        const formData = new FormData();
+        formData.append('username', login);
+        formData.append('password', password);
+
+        await axios.post(
+            'http://localhost:8000/auth',
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data', // Важно указать Content-Type
+                },
+            })
+            .then(response => {
+                sessionStorage.setItem("token", response.data["access_token"]);
+                navigate('/dashboard');
+            })
+            .catch ((error) => {
+                console.error('Error while logging in:', error);
+                setLoginError(true);
+            })
+    }
 
     return (
         <>
@@ -26,7 +62,7 @@ const LoginScreen = () => {
                             <AlertIcon />
                             <AlertTitle>Неверный логин или пароль!</AlertTitle>
                         </Alert>
-                        <form onSubmit={() => {}}>
+                        <form onSubmit={OnLogin}>
                             <Flex direction={"column"}>
                                 <Input placeholder='Login'
                                        mb={2}

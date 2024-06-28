@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
+
 from services.backend.models.database import database
 from services.backend.routers import users, vacancies
 from fastapi import FastAPI
@@ -8,13 +10,19 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await database.connect()
     yield
     await database.disconnect()
-
 
 app.router.lifespan_context = lifespan
 

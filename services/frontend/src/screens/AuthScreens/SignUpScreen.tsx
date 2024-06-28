@@ -1,13 +1,48 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,Card, CardBody, CardHeader, Flex, Heading, Input,
     Spacer, Text, Link,
 } from "@chakra-ui/react";
+import axios from "axios";
+import {useNavigate} from "react-router-dom";
 
 const SignUpScreen = () => {
     const [name, setName] = useState('')
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const token = sessionStorage.getItem('token');
+
+        if (token) {
+            navigate('/dashboard');
+        }
+    }, [navigate]);
+
+    const OnRegister = async (event: React.FormEvent) => {
+        event.preventDefault();
+        
+        await axios.post(
+            'http://localhost:8000/sign-up',
+            {
+                name: name,
+                email: username,
+                password: password
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json', // Важно указать Content-Type
+                },
+            })
+            .then(response => {
+                sessionStorage.setItem("token", response.data["token"]["access_token"]);
+                navigate('/dashboard');
+            })
+            .catch ((error) => {
+                console.error('Error while signing up:', error);
+            })
+    }
 
 
     return (
@@ -23,7 +58,7 @@ const SignUpScreen = () => {
                         <CardHeader>
                             <Heading size="md" textAlign="center">Registration</Heading>
                         </CardHeader>
-                        <form onSubmit={() => {}}>
+                        <form onSubmit={OnRegister}>
                             <Flex direction={"column"}>
                                 <Input placeholder='Name'
                                        mb={2}
