@@ -13,7 +13,7 @@ async def search_vacancies_count(options: vacancies.SearchVacancies,
     params = {
         # "responses_count_enabled": True,
         "page": options.page,
-        "text": {options.position},
+        "text": options.position,
         "per_page": options.per_page
     }
 
