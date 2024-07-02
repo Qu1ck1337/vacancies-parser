@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink,
     Button,
@@ -10,11 +10,9 @@ import {
     Flex,
     Heading,
     Input, Link,
-    NumberDecrementStepper,
-    NumberIncrementStepper,
     NumberInput,
     NumberInputField,
-    NumberInputStepper,
+    Select,
     SimpleGrid,
     Text
 } from "@chakra-ui/react";
@@ -33,7 +31,16 @@ const Dashboard = () => {
     const [cofindersCount, setCofindersCount] = useState(-1)
     const [currentPage, setCurrentPage] = useState(0)
     const [maxPage, setMaxPage] = useState(0)
-    const [isSearching, setIsSearching] = useState(false);
+    const [schedule, setSchedule] = useState([])
+
+
+    useEffect(() => {
+        axios.get("https://api.hh.ru/dictionaries").then(response => {
+            setSchedule(response.data["schedule"]);
+        })
+        checkVacanciesHistory();
+    }, []);
+
 
     useEffect(() => {
         axios.get('http://localhost:8000/users/me', {
@@ -45,9 +52,9 @@ const Dashboard = () => {
                 setName(response.data["name"])
             })
             .catch(error => console.log(error))
-    });
+    }, []);
 
-    useEffect(() => {
+    const checkVacanciesHistory = () => {
         axios.get('http://localhost:8000/vacancies_history', {
             headers: {
                 Authorization: `Bearer ${sessionStorage.getItem('token')}`, // Устанавливаем заголовок Authorization с Bearer токеном
@@ -57,15 +64,14 @@ const Dashboard = () => {
                 setHistory(response.data);
             })
             .catch(error => console.log(error))
-    }, []);
+    };
 
-    const searchVacancies = () => {
-        console.log(currentPage)
+    const searchVacancies = (page: number) => {
         axios.post('http://localhost:8000/search_vacancies', {
-            page: currentPage,
+            page: page,
             position: position.length > 0 ? position : undefined,
             skills: skills.length > 0 ? skills : undefined,
-            workFormat: workFormat.length > 0 ? workFormat : undefined,
+            work_format: workFormat.length > 0 ? workFormat : undefined,
             minimal_salary: minimalSalary > 0 ? minimalSalary : undefined
         }, {
             headers: {
@@ -78,26 +84,46 @@ const Dashboard = () => {
                 setVacanciesCount(response.data["vacancies_count"]);
                 setCofindersCount(response.data["cofinders_count"]);
                 setVacancies(response.data["items"]);
-                setCurrentPage(response.data["page"] + 1)
-                setMaxPage(response.data["pages"] + 1)
+                setCurrentPage(response.data["page"])
+                setMaxPage(response.data["pages"])
+                checkVacanciesHistory();
             })
             .catch(error => console.log(error))
-    };
+    }
 
     const onSubmit = (event: React.FormEvent) => {
         event.preventDefault();
-        searchVacancies()
+        new Promise(() => searchVacancies(0)).then(
+            checkVacanciesHistory
+        )
     }
 
     const onNextPage = () => {
-        setCurrentPage(currentPage + 1)
-        searchVacancies()
+        searchVacancies(currentPage + 1);
     }
 
     const onPrevPage = () => {
-        setCurrentPage(currentPage - 1)
-        searchVacancies()
+        searchVacancies(currentPage - 1);
     }
+
+    const onReturnHistory = (item: any) => {
+        setPosition(item["position"]);
+        setSkills(item["skills"]);
+        setWorkFormat(item["work_format"]);
+        setMinimalSalary(item["minimal_salary"]);
+        scrollToSearchForm();
+    }
+
+
+    const searchForm = useRef<HTMLFormElement>(null);
+
+    const scrollToSearchForm = () => {
+        if (searchForm.current) {
+            searchForm.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+
 
     return (
         <Box
@@ -120,7 +146,7 @@ const Dashboard = () => {
                                 {item["minimal_salary"] ? <Text><b>Minimal salary:</b> {item["minimal_salary"]}</Text> : null}
                             </CardBody>
                             <CardFooter>
-                                <Button>To return</Button>
+                                <Button onClick={() => onReturnHistory(item)}>To return</Button>
                             </CardFooter>
                         </Card>
                 )})}
@@ -163,7 +189,7 @@ const Dashboard = () => {
                         <BreadcrumbLink><Button size={"md"} onClick={onNextPage}> Next </Button></BreadcrumbLink>
                     </BreadcrumbItem>
 
-                    <Text>{currentPage} of {maxPage} Page</Text>
+                    <Text>{currentPage + 1} of {maxPage} Page</Text>
                 </Breadcrumb>
                 <Divider m={12} orientation='horizontal'></Divider>
             </Box>
@@ -177,43 +203,54 @@ const Dashboard = () => {
                         <CardHeader>
                             <Heading size="md" textAlign="center">Find vacancies</Heading>
                         </CardHeader>
-                        <form onSubmit={onSubmit}>
+                        <form onSubmit={onSubmit} ref={searchForm}>
                             <Flex direction={"column"}>
                                 <Input placeholder='Position'
                                        mb={2}
                                        w={"lg"}
                                        onChange={(event) => setPosition(event.target.value)}
+                                       value={position}
                                 />
                                 <Input placeholder='Skills'
                                        mb={2}
                                        w={"lg"}
                                        onChange={(event) => setSkills(event.target.value)}
+                                       value={skills}
                                 />
-                                <Input placeholder='Work Format'
-                                       mb={2}
-                                       w={"lg"}
-                                       onChange={(event) => setWorkFormat(event.target.value)}
-                                />
+                                <Select placeholder='Work format' onChange={
+                                    event => {
+                                        setWorkFormat(event.currentTarget.value);
+                                        console.log(event.currentTarget.value);
+                                    }}
+                                    value={workFormat}
+                                >
+                                    {schedule.map(item => {
+                                        return (<option value={item["id"]}>{item["name"]}</option>)
+                                    })}
+                                </Select>
                                 <Box mb={2}>
                                     <Text>Minimal Salary</Text>
-                                    <NumberInput
-                                        min={0}
-                                        defaultValue={0}
-                                        onChange={(valueAsString, valueAsNumber) => {
-                                            setMinimalSalary(valueAsNumber);
-                                        }}
+                                    <Flex
+                                        alignItems={"center"}
                                     >
-                                        <NumberInputField />
-                                        <NumberInputStepper>
-                                            <NumberIncrementStepper />
-                                            <NumberDecrementStepper />
-                                        </NumberInputStepper>
-                                    </NumberInput>
+                                        <NumberInput
+                                            min={0}
+                                            defaultValue={0}
+                                            onChange={(valueAsString, valueAsNumber) => {
+                                                setMinimalSalary(valueAsNumber);
+                                            }}
+                                            value={minimalSalary}
+                                        >
+                                            <NumberInputField />
+                                        </NumberInput>
+                                        <Text ml={"2"} size={"lg"}>RUB</Text>
+                                    </Flex>
+
                                 </Box>
                                 <Flex
                                     alignItems="center"
                                     justifyContent="end">
-                                    <Button type={"submit"} colorScheme='blue'>Search</Button>
+                                    <Button colorScheme='blue' onClick={onSubmit}>Search</Button>
                                 </Flex>
                             </Flex>
                         </form>

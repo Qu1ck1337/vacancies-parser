@@ -10,10 +10,16 @@ from services.backend.schemas import vacancies, users
 
 async def search_vacancies_count(options: vacancies.SearchVacancies,
                                  current_user: users.User):
+    text = []
+    for option in [options.position, options.skills]:
+        if option:
+            text.append(option)
+
     params = {
         # "responses_count_enabled": True,
         "page": options.page,
-        "text": options.position,
+        "text": "\"" + "\" AND \"".join(text) + "\"",
+        "schedule": options.work_format,
         "per_page": options.per_page
     }
 
