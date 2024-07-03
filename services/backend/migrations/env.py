@@ -6,7 +6,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from services.backend.models import users
+from models import users
 
 load_dotenv()
 

@@ -3,9 +3,9 @@ import datetime
 import requests
 from sqlalchemy import desc
 
-from services.backend.models.database import database
-from services.backend.models.users import vacancies_table
-from services.backend.schemas import vacancies, users
+from models.database import database
+from models.users import vacancies_table
+from schemas import vacancies, users
 
 
 async def search_vacancies_count(options: vacancies.SearchVacancies,

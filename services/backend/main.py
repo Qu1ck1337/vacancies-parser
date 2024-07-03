@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
-from services.backend.models.database import database
-from services.backend.routers import users, vacancies
+from models.database import database
+from routers import users, vacancies
 from fastapi import FastAPI
 
 

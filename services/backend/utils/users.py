@@ -4,9 +4,9 @@ import string
 from datetime import datetime, timedelta
 from sqlalchemy import and_
 
-from services.backend.models.database import database
-from services.backend.models.users import tokens_table, users_table
-from services.backend.schemas import users as user_schema
+from models.database import database
+from models.users import tokens_table, users_table
+from schemas import users as user_schema
 
 
 def get_random_string(length=12):

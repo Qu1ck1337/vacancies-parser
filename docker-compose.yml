@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./services/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+
+  backend:
+    build:
+      context: ./services/backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_HOST=host.docker.internal
+      - DB_NAME=${DB_NAME}

@@ -8,7 +8,7 @@ import {useNavigate} from "react-router-dom";
 
 const SignUpScreen = () => {
     const [name, setName] = useState('')
-    const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const navigate = useNavigate();
 
@@ -27,7 +27,7 @@ const SignUpScreen = () => {
             'http://localhost:8000/sign-up',
             {
                 name: name,
-                email: username,
+                email: email,
                 password: password
             },
             {
@@ -65,10 +65,10 @@ const SignUpScreen = () => {
                                        w={"md"}
                                        onChange={(event) => setName(event.target.value)}
                                        required/>
-                                <Input placeholder='Username'
+                                <Input placeholder='Email'
                                        mb={2}
                                        w={"md"}
-                                       onChange={(event) => setUsername(event.target.value)}
+                                       onChange={(event) => setEmail(event.target.value)}
                                        required/>
                                 <Input placeholder='Password'
                                        mb={2}
