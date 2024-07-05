@@ -1,4 +1,3 @@
----
 # Vacancies Parser
 
 ## Description
@@ -94,6 +93,8 @@ This application is a vacancies parser developed using FastAPI for the backend a
     ```sh
     pytest
     ```
+
+---
 
 # Vacancies Parser
 
